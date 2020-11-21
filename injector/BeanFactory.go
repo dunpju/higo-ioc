@@ -1,6 +1,7 @@
 package injector
 
 import (
+	"github.com/dengpju/higo-express/express"
 	"log"
 	"reflect"
 )
@@ -13,11 +14,20 @@ func init()  {
 
 type BeanFactoryImpl struct {
 	beanMapper BeanMapper
-	ExprMap map[string]interface{}
+	exprMap map[string]interface{}
 }
 
 func NewBeanFactory() *BeanFactoryImpl {
-	return &BeanFactoryImpl{beanMapper:make(BeanMapper),ExprMap: make(map[string]interface{})}
+	return &BeanFactoryImpl{beanMapper:make(BeanMapper),exprMap: make(map[string]interface{})}
+}
+
+func (this *BeanFactoryImpl)SetExprMap(key string, val interface{})  {
+	this.exprMap[key] = val
+	express.SetFuncMap(key, val)
+}
+
+func (this *BeanFactoryImpl)GetExprMap() map[string]interface{} {
+	return this.exprMap
 }
 
 func (this *BeanFactoryImpl)Set(values ...interface{})  {
@@ -59,11 +69,11 @@ func (this *BeanFactoryImpl) Apply(bean interface{}) {
 					v.Field(i).Set(reflect.ValueOf(value))
 				}
 			}else{
-				log.Panicln("表达式")
-				//ret:=expr.BeanExpr(field.Tag.Get("inject"),this.ExprMap)
-				//if ret!=nil && !ret.IsEmpty() {
-				//	v.Field(i).Set(reflect.ValueOf(ret[0]))
-				//}
+				log.Println("表达式")
+				ret := express.Run(field.Tag.Get("inject"))
+				if ret != nil && !ret.IsEmpty() {
+					v.Field(i).Set(reflect.ValueOf(ret[0]))
+				}
 			}
 		}
 	}
