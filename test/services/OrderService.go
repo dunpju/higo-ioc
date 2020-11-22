@@ -7,6 +7,7 @@ type OrderService struct {
 }
 
 func NewOrderService() *OrderService {
+	fmt.Println("初始化 OrderService")
 	return &OrderService{Version:"3.0"}
 }
 

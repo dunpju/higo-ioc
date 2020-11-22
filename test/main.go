@@ -32,4 +32,7 @@ func main()  {
 	userService:=services.NewUserService()
 	injector.BeanFactory.Apply(userService)
 	fmt.Println(userService.Order)
+	adminService:=services.NewAdminService()
+	injector.BeanFactory.Apply(adminService)
+	fmt.Println(adminService.Order)
 }
