@@ -1,6 +1,8 @@
 package injector
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type BeanMapper map[reflect.Type]reflect.Value
 
@@ -21,6 +23,12 @@ func (this BeanMapper) get(bean interface{}) reflect.Value {
 	}
 	if v, ok := this[t]; ok {
 		return v
+	}
+	// 处理接口 继承
+	for k,v := range this{
+		if k.Implements(t) {
+			return v
+		}
 	}
 	return reflect.Value{}
 }

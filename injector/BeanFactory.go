@@ -64,18 +64,19 @@ func (this *BeanFactoryImpl) Apply(bean interface{}) {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
 		if v.Field(i).CanSet() && field.Tag.Get("inject") != "" {
-			if field.Tag.Get("inject") == "-" {
+			if field.Tag.Get("inject") == "-" { // 单例
 				if value := this.Get(field.Type); value != nil { // 容器中如果存在
 					v.Field(i).Set(reflect.ValueOf(value))
+					this.Apply(value)
 				}
-			} else {
+			} else { // 多例
 				log.Println("表达式")
 				ret := express.Run(field.Tag.Get("inject"))
 				if ret != nil && !ret.IsEmpty() {
 					retValue := ret[0]
 					if retValue != nil {
-						this.Set(retValue)
 						v.Field(i).Set(reflect.ValueOf(retValue))
+						this.Apply(retValue)
 					}
 				}
 			}

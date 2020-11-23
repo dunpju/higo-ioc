@@ -13,3 +13,7 @@ func NewServiceConfig() *ServiceConfig {
 func (this *ServiceConfig) OrderService() *services.OrderService {
 	return services.NewOrderService()
 }
+
+func (this *ServiceConfig) DbService() *services.DbService {
+	return services.NewDbService()
+}
