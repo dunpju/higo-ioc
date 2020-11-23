@@ -64,15 +64,11 @@ func (this *BeanFactoryImpl) Apply(bean interface{}) {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
 		if v.Field(i).CanSet() && field.Tag.Get("inject") != "" {
-			if value := this.Get(field.Type); value != nil {// 容器中如果存在
-				v.Field(i).Set(reflect.ValueOf(value))
-				continue
-			}
 			if field.Tag.Get("inject") == "-" {
-				if value := this.Get(field.Type); value != nil {
+				if value := this.Get(field.Type); value != nil { // 容器中如果存在
 					v.Field(i).Set(reflect.ValueOf(value))
 				}
-			}else{
+			} else {
 				log.Println("表达式")
 				ret := express.Run(field.Tag.Get("inject"))
 				if ret != nil && !ret.IsEmpty() {
@@ -82,6 +78,25 @@ func (this *BeanFactoryImpl) Apply(bean interface{}) {
 						v.Field(i).Set(reflect.ValueOf(retValue))
 					}
 				}
+			}
+		}
+	}
+}
+
+func (this *BeanFactoryImpl) Config(cfgs ...interface{})  {
+	for _,cfg:=range cfgs{
+		t:=reflect.TypeOf(cfg)
+		if t.Kind() != reflect.Ptr {
+			panic("required ptr object")
+		}
+		this.Set(cfg)
+		this.SetExprMap(t.Elem().Name(), cfg) // 自动构建
+		v:=reflect.ValueOf(cfg)
+		for i:=0; i<t.NumMethod(); i++ {
+			method := v.Method(i)
+			callRet:= method.Call(nil)
+			if callRet != nil && len(callRet) == 1 {
+				this.Set(callRet[0].Interface())
 			}
 		}
 	}

@@ -24,11 +24,12 @@ func main()  {
 	//fmt.Println(userService.Order)
 
 	serviceConfig:=config.NewServiceConfig()
-	injector.BeanFactory.SetExprMap("ServiceConfig", serviceConfig)
+	//injector.BeanFactory.SetExprMap("ServiceConfig", serviceConfig)
+	injector.BeanFactory.Config(serviceConfig)
 
 	order := services.NewOrderService()
 	order.Version = "2.0"
-	injector.BeanFactory.Set(serviceConfig, order)
+	injector.BeanFactory.Set(order)
 	userService:=services.NewUserService()
 	injector.BeanFactory.Apply(userService)
 	fmt.Println(userService.Order)
