@@ -10,6 +10,10 @@ func NewServiceConfig() *ServiceConfig {
 	return &ServiceConfig{}
 }
 
+func (this *ServiceConfig) Register() {
+
+}
+
 func (this *ServiceConfig) OrderService() *services.OrderService {
 	return services.NewOrderService()
 }
