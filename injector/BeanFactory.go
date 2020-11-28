@@ -2,48 +2,47 @@ package injector
 
 import (
 	"github.com/dengpju/higo-express/express"
-	"log"
 	"reflect"
 )
 
 var BeanFactory *BeanFactoryImpl
 
-func init()  {
-	BeanFactory=NewBeanFactory()
+func init() {
+	BeanFactory = NewBeanFactory()
 }
 
 type BeanFactoryImpl struct {
 	beanMapper BeanMapper
-	exprMap map[string]interface{}
+	exprMap    map[string]interface{}
 }
 
 func NewBeanFactory() *BeanFactoryImpl {
-	return &BeanFactoryImpl{beanMapper:make(BeanMapper),exprMap: make(map[string]interface{})}
+	return &BeanFactoryImpl{beanMapper: make(BeanMapper), exprMap: make(map[string]interface{})}
 }
 
-func (this *BeanFactoryImpl)SetExprMap(key string, val interface{})  {
+func (this *BeanFactoryImpl) SetExprMap(key string, val interface{}) {
 	this.exprMap[key] = val
 	express.SetFuncMap(key, val)
 }
 
-func (this *BeanFactoryImpl)GetExprMap() map[string]interface{} {
+func (this *BeanFactoryImpl) GetExprMap() map[string]interface{} {
 	return this.exprMap
 }
 
-func (this *BeanFactoryImpl)Set(values ...interface{})  {
-	if values==nil || len(values)==0 {
+func (this *BeanFactoryImpl) Set(values ...interface{}) {
+	if values == nil || len(values) == 0 {
 		return
 	}
-	for _,v:=range values {
+	for _, v := range values {
 		this.beanMapper.add(v)
 	}
 }
 
-func (this *BeanFactoryImpl)Get(v interface{}) interface{} {
-	if v==nil {
+func (this *BeanFactoryImpl) Get(v interface{}) interface{} {
+	if v == nil {
 		return nil
 	}
-	value:=this.beanMapper.get(v)
+	value := this.beanMapper.get(v)
 	if value.IsValid() {
 		return value.Interface()
 	}
@@ -70,7 +69,6 @@ func (this *BeanFactoryImpl) Apply(bean interface{}) {
 					this.Apply(value)
 				}
 			} else { // 多例
-				log.Println("表达式")
 				ret := express.Run(field.Tag.Get("inject"))
 				if ret != nil && !ret.IsEmpty() {
 					retValue := ret[0]
@@ -84,18 +82,18 @@ func (this *BeanFactoryImpl) Apply(bean interface{}) {
 	}
 }
 
-func (this *BeanFactoryImpl) Config(cfgs ...interface{})  {
-	for _,cfg:=range cfgs{
-		t:=reflect.TypeOf(cfg)
+func (this *BeanFactoryImpl) Config(cfgs ...interface{}) {
+	for _, cfg := range cfgs {
+		t := reflect.TypeOf(cfg)
 		if t.Kind() != reflect.Ptr {
 			panic("required ptr object")
 		}
 		this.Set(cfg)
 		this.SetExprMap(t.Elem().Name(), cfg) // 自动构建
-		v:=reflect.ValueOf(cfg)
-		for i:=0; i<t.NumMethod(); i++ {
+		v := reflect.ValueOf(cfg)
+		for i := 0; i < t.NumMethod(); i++ {
 			method := v.Method(i)
-			callRet:= method.Call(nil)
+			callRet := method.Call(nil)
 			if callRet != nil && len(callRet) == 1 {
 				this.Set(callRet[0].Interface())
 			}
