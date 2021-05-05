@@ -1,8 +1,11 @@
 package injector
 
 import (
+	"fmt"
 	"github.com/dengpju/higo-express/express"
 	"reflect"
+	"regexp"
+	"strings"
 )
 
 var BeanFactory *BeanFactoryImpl
@@ -93,9 +96,30 @@ func (this *BeanFactoryImpl) Config(cfgs ...interface{}) {
 		v := reflect.ValueOf(cfg)
 		for i := 0; i < t.NumMethod(); i++ {
 			method := v.Method(i)
-			callRet := method.Call(nil)
-			if callRet != nil && len(callRet) == 1 {
-				this.Set(callRet[0].Interface())
+			typeRegexp := regexp.MustCompile(`func\((.*)\)`)
+			regParams := typeRegexp.FindStringSubmatch(fmt.Sprintf("%s", method.Type()))
+			if "" != regParams[1] {
+				params := make([]reflect.Value, 0)
+				args := strings.Split(regParams[1], ",")
+				for _, a := range args {
+					trimArgType := strings.Trim(a, " ")
+					if "string" == trimArgType {
+						params = append(params, reflect.ValueOf(""))
+					} else if "int" == trimArgType {
+						params = append(params, reflect.ValueOf(0))
+					} else if "int64" == trimArgType {
+						params = append(params, reflect.ValueOf(int64(0)))
+					}
+				}
+				callRet := method.Call(params)
+				if callRet != nil && len(callRet) == 1 {
+					this.Set(callRet[0].Interface())
+				}
+			} else {
+				callRet := method.Call(nil)
+				if callRet != nil && len(callRet) == 1 {
+					this.Set(callRet[0].Interface())
+				}
 			}
 		}
 	}
