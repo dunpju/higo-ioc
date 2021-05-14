@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/dengpju/higo-annotation/anno"
 	"github.com/dengpju/higo-ioc/config"
 	"github.com/dengpju/higo-ioc/injector"
 	"github.com/dengpju/higo-ioc/test/services"
@@ -30,8 +31,11 @@ func main()  {
 	//order := services.NewOrderService()
 	//order.Version = "2.0"
 	//injector.BeanFactory.Set(order)
+
+	anno.Config.Set("user.age", "520")
 	userService:=services.NewUserService()
 	injector.BeanFactory.Apply(userService)
+	fmt.Println(userService.Age)
 	fmt.Println(userService.Order)
 	adminService:=services.NewAdminService()
 	injector.BeanFactory.Apply(adminService)

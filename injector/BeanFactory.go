@@ -2,6 +2,7 @@ package injector
 
 import (
 	"fmt"
+	"github.com/dengpju/higo-annotation/anno"
 	"github.com/dengpju/higo-express/express"
 	"reflect"
 	"regexp"
@@ -65,27 +66,34 @@ func (this *BeanFactoryImpl) Apply(bean interface{}) {
 	}
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
-		if v.Field(i).CanSet() && field.Tag.Get("inject") != "" {
-			if field.Tag.Get("inject") == "-" { // 单例
-				if value := this.Get(field.Type); value != nil { // 容器中如果存在
-					v.Field(i).Set(reflect.ValueOf(value))
-					this.Apply(value)
-				}
-			} else { // 多例
-				ret := express.Run(field.Tag.Get("inject"))
-				if ret != nil && !ret.IsEmpty() {
-					retValue := ret[0]
-					if retValue != nil {
-						v.Field(i).Set(reflect.ValueOf(retValue))
-						this.Apply(retValue)
+		if v.Field(i).CanSet() {
+			if field.Tag.Get("inject") != "" {
+				if field.Tag.Get("inject") == "-" { // 单例
+					if value := this.Get(field.Type); value != nil { // 容器中如果存在
+						v.Field(i).Set(reflect.ValueOf(value))
+						this.Apply(value)
 					}
+				} else { // 多例
+					ret := express.Run(field.Tag.Get("inject"))
+					if ret != nil && !ret.IsEmpty() {
+						retValue := ret[0]
+						if retValue != nil {
+							v.Field(i).Set(reflect.ValueOf(retValue))
+							this.Apply(retValue)
+						}
+					}
+				}
+			} else {
+				if anno.IsAnnotation(v.Field(i).Type()) {
+					anno.Get(v.Field(i).Type().String()).SetTag(field.Tag) //添加到注解列表
+					v.Field(i).Set(reflect.ValueOf(anno.Get(v.Field(i).Type().String())))
 				}
 			}
 		}
 	}
 }
 
-func (this *BeanFactoryImpl) Config(cfgs ...interface{}) {
+func (this *BeanFactoryImpl) Config(cfgs ...IBean) {
 	for _, cfg := range cfgs {
 		t := reflect.TypeOf(cfg)
 		if t.Kind() != reflect.Ptr {
@@ -98,7 +106,7 @@ func (this *BeanFactoryImpl) Config(cfgs ...interface{}) {
 			method := v.Method(i)
 			typeRegexp := regexp.MustCompile(`func\((.*)\)`)
 			regParams := typeRegexp.FindStringSubmatch(fmt.Sprintf("%s", method.Type()))
-			if "" != regParams[1] {
+			if "" != regParams[1] { // 有参数
 				params := make([]reflect.Value, 0)
 				args := strings.Split(regParams[1], ",")
 				for _, a := range args {
@@ -115,7 +123,7 @@ func (this *BeanFactoryImpl) Config(cfgs ...interface{}) {
 				if callRet != nil && len(callRet) == 1 {
 					this.Set(callRet[0].Interface())
 				}
-			} else {
+			} else { // 无参数
 				callRet := method.Call(nil)
 				if callRet != nil && len(callRet) == 1 {
 					this.Set(callRet[0].Interface())

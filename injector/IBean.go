@@ -1,4 +1,4 @@
-package config
+package injector
 
 type IBean interface {
 	Provider()

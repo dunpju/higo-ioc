@@ -1,6 +1,9 @@
 package services
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/dengpju/higo-annotation/anno"
+)
 
 type IOrder interface {
 	Name() string
@@ -8,12 +11,13 @@ type IOrder interface {
 
 type OrderService struct {
 	Version string
-	Db *DbService `inject:"ServiceConfig.DbService()"`
+	Db      *DbService  `inject:"ServiceConfig.DbService()"`
+	Age     *anno.Value `prefix:"user.age"`
 }
 
 func NewOrderService() *OrderService {
 	fmt.Println("初始化 OrderService")
-	return &OrderService{Version:"3.0"}
+	return &OrderService{Version: "3.0"}
 }
 
 func (this *OrderService) GetOrderInfo(uid int) {
