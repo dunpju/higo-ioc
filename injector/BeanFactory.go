@@ -93,16 +93,16 @@ func (this *BeanFactoryImpl) Apply(bean interface{}) {
 	}
 }
 
-func (this *BeanFactoryImpl) Config(cfgs ...IBean) {
-	for _, cfg := range cfgs {
-		t := reflect.TypeOf(cfg)
-		if t.Kind() != reflect.Ptr {
+func (this *BeanFactoryImpl) Config(beans ...IBean) {
+	for _, bean := range beans {
+		beanRefType := reflect.TypeOf(bean)
+		if beanRefType.Kind() != reflect.Ptr {
 			panic("required ptr object")
 		}
-		this.Set(cfg)
-		this.SetExprMap(t.Elem().Name(), cfg) // 自动构建
-		v := reflect.ValueOf(cfg)
-		for i := 0; i < t.NumMethod(); i++ {
+		this.Set(bean)
+		this.SetExprMap(beanRefType.Elem().Name(), bean) // 自动构建
+		v := reflect.ValueOf(bean)
+		for i := 0; i < beanRefType.NumMethod(); i++ {
 			method := v.Method(i)
 			typeRegexp := regexp.MustCompile(`func\((.*)\)`)
 			regParams := typeRegexp.FindStringSubmatch(fmt.Sprintf("%s", method.Type()))

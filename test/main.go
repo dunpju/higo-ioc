@@ -8,7 +8,7 @@ import (
 	"github.com/dengpju/higo-ioc/test/services"
 )
 
-func main()  {
+func main() {
 	//uid:=123
 	//userService:=services.NewUserService(services.NewOrderService())
 	//userService.GetUserInfo(uid)
@@ -24,7 +24,7 @@ func main()  {
 	//injector.BeanFactory.Apply(userService)
 	//fmt.Println(userService.Order)
 
-	serviceConfig:=config.NewServiceConfig()
+	serviceConfig := config.NewServiceConfig()
 	//injector.BeanFactory.SetExprMap("ServiceConfig", serviceConfig)
 	injector.BeanFactory.Config(serviceConfig)
 
@@ -33,11 +33,11 @@ func main()  {
 	//injector.BeanFactory.Set(order)
 
 	anno.Config.Set("user.age", "520")
-	userService:=services.NewUserService()
+	userService := services.NewUserService()
 	injector.BeanFactory.Apply(userService)
 	fmt.Println(userService.Age)
 	fmt.Println(userService.Order)
-	adminService:=services.NewAdminService()
+	adminService := services.NewAdminService()
 	injector.BeanFactory.Apply(adminService)
 	fmt.Println(adminService.Order)
 	fmt.Println(adminService.Order.Db)
