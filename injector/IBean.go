@@ -1,9 +1,7 @@
 package injector
 
-import "fmt"
-
 type IBean interface {
-	Provider() IBean
+	Provider()
 }
 
 type BeanConfig struct {
@@ -13,7 +11,4 @@ func NewBeanConfig() *BeanConfig {
 	return &BeanConfig{}
 }
 
-func (this *BeanConfig) Provider() IBean {
-	fmt.Printf("%T\n", this)
-	return this
-}
+func (this *BeanConfig) Provider() {}

@@ -6,14 +6,11 @@ import (
 )
 
 type ServiceConfig struct {
+	injector.BeanConfig
 }
 
 func NewServiceConfig() *ServiceConfig {
 	return &ServiceConfig{}
-}
-
-func (this *ServiceConfig) Provider() injector.IBean {
-	return this
 }
 
 func (this *ServiceConfig) OrderService() *services.OrderService {
