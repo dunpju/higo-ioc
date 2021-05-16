@@ -107,29 +107,29 @@ func (this *BeanFactoryImpl) Config(beans ...IBean) {
 			methodType := fmt.Sprintf("%s", method.Type())
 			typeRegexp := regexp.MustCompile(`func\((.*)\)`)
 			regParams := typeRegexp.FindStringSubmatch(methodType)
-			if "func(*higo.Higo) gin.HandlerFunc" != methodType {
-				if "" != regParams[1] { // 有参数
-					params := make([]reflect.Value, 0)
-					args := strings.Split(regParams[1], ",")
-					for _, a := range args {
-						trimArgType := strings.Trim(a, " ")
-						if "string" == trimArgType {
-							params = append(params, reflect.ValueOf(""))
-						} else if "int" == trimArgType {
-							params = append(params, reflect.ValueOf(0))
-						} else if "int64" == trimArgType {
-							params = append(params, reflect.ValueOf(int64(0)))
-						}
+			if "" != regParams[1] { // 有参数
+				arguments := make([]reflect.Value, 0)
+				args := strings.Split(regParams[1], ",")
+				for _, a := range args {
+					trimArgType := strings.Trim(a, " ")
+					if "string" == trimArgType {
+						arguments = append(arguments, reflect.ValueOf(""))
+					} else if "int" == trimArgType {
+						arguments = append(arguments, reflect.ValueOf(0))
+					} else if "int64" == trimArgType {
+						arguments = append(arguments, reflect.ValueOf(int64(0)))
 					}
-					callRet := method.Call(params)
+				}
+				if len(arguments) > 0 {
+					callRet := method.Call(arguments)
 					if callRet != nil && len(callRet) == 1 {
 						this.Set(callRet[0].Interface())
 					}
-				} else { // 无参数
-					callRet := method.Call(nil)
-					if callRet != nil && len(callRet) == 1 {
-						this.Set(callRet[0].Interface())
-					}
+				}
+			} else { // 无参数
+				callRet := method.Call(nil)
+				if callRet != nil && len(callRet) == 1 {
+					this.Set(callRet[0].Interface())
 				}
 			}
 		}
