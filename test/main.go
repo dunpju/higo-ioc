@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/dengpju/higo-annotation/anno"
-	"github.com/dengpju/higo-ioc/config"
-	"github.com/dengpju/higo-ioc/injector"
-	"github.com/dengpju/higo-ioc/test/services"
+	"github.com/dunpju/higo-annotation/anno"
+	"github.com/dunpju/higo-ioc/config"
+	"github.com/dunpju/higo-ioc/injector"
+	"github.com/dunpju/higo-ioc/test/services"
 )
 
 func main() {

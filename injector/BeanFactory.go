@@ -2,8 +2,8 @@ package injector
 
 import (
 	"fmt"
-	"github.com/dengpju/higo-annotation/anno"
-	"github.com/dengpju/higo-express/express"
+	"github.com/dunpju/higo-annotation/anno"
+	"github.com/dunpju/higo-express/express"
 	"reflect"
 	"regexp"
 	"strings"

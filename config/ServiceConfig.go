@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/dengpju/higo-ioc/injector"
-	"github.com/dengpju/higo-ioc/test/services"
+	"github.com/dunpju/higo-ioc/injector"
+	"github.com/dunpju/higo-ioc/test/services"
 )
 
 type ServiceConfig struct {
