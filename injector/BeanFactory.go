@@ -16,12 +16,12 @@ func init() {
 }
 
 type BeanFactoryImpl struct {
-	beanMapper BeanMapper
+	beanMapper *BeanMapper
 	exprMap    map[string]interface{}
 }
 
 func NewBeanFactory() *BeanFactoryImpl {
-	return &BeanFactoryImpl{beanMapper: make(BeanMapper), exprMap: make(map[string]interface{})}
+	return &BeanFactoryImpl{beanMapper: NewBeanMapper(), exprMap: make(map[string]interface{})}
 }
 
 func (this *BeanFactoryImpl) SetExprMap(key string, val interface{}) {

@@ -2,33 +2,43 @@ package injector
 
 import (
 	"reflect"
+	"sync"
 )
 
-type BeanMapper map[reflect.Type]reflect.Value
+type BeanMapper struct {
+	m sync.Map
+}
 
-func (this BeanMapper) add(bean interface{}) {
+func NewBeanMapper() *BeanMapper {
+	return &BeanMapper{}
+}
+
+func (this *BeanMapper) add(bean interface{}) {
 	t := reflect.TypeOf(bean)
 	if t.Kind() != reflect.Ptr {
 		panic("require ptr object")
 	}
-	this[t] = reflect.ValueOf(bean)
+	this.m.Store(t, reflect.ValueOf(bean))
 }
 
-func (this BeanMapper) get(bean interface{}) reflect.Value {
+func (this *BeanMapper) get(bean interface{}) reflect.Value {
 	var t reflect.Type
 	if bt, ok := bean.(reflect.Type); ok {
 		t = bt
 	} else {
 		t = reflect.TypeOf(bean)
 	}
-	if v, ok := this[t]; ok {
-		return v
+	if v, ok := this.m.Load(t); ok {
+		return v.(reflect.Value)
 	}
 	// 处理接口 继承
-	for k, v := range this {
-		if k.Implements(t) {
-			return v
+	v := reflect.Value{}
+	this.m.Range(func(key, value any) bool {
+		if key.(reflect.Type).Implements(t) {
+			v = value.(reflect.Value)
+			return false
 		}
-	}
-	return reflect.Value{}
+		return true
+	})
+	return v
 }
